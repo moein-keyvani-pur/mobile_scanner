@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/src/mobile_scanner_controller.dart';
 import 'package:mobile_scanner/src/objects/barcode_capture.dart';
 import 'package:mobile_scanner/src/objects/mobile_scanner_arguments.dart';
+import 'package:mobile_scanner/src/qr_scanner_overlay_shape.dart';
 
 typedef MobileScannerCallback = void Function(BarcodeCapture barcodes);
 typedef MobileScannerArgumentsCallback = void Function(
@@ -117,17 +118,13 @@ class _MobileScannerState extends State<MobileScanner>
           });
           return ClipRect(
             child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: FittedBox(
-                fit: widget.fit,
-                child: SizedBox(
-                  width: value.size.width,
-                  height: value.size.height,
-                  child: kIsWeb
-                      ? HtmlElementView(viewType: value.webId!)
-                      : Texture(textureId: value.textureId!),
-                ),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Container(
+                decoration: ShapeDecoration(shape: QrScannerOverlayShape()),
+                child: kIsWeb
+                    ? HtmlElementView(viewType: value.webId!)
+                    : Texture(textureId: value.textureId!),
               ),
             ),
           );

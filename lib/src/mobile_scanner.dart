@@ -116,17 +116,27 @@ class _MobileScannerState extends State<MobileScanner>
           controller.barcodes.listen((barcode) {
             widget.onDetect(barcode);
           });
-          return ClipRect(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Container(
-                decoration: ShapeDecoration(shape: QrScannerOverlayShape()),
-                child: kIsWeb
-                    ? HtmlElementView(viewType: value.webId!)
-                    : Texture(textureId: value.textureId!),
+          return Stack(
+            children: [
+              ClipRect(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: SizedBox(
+                    width: value.size.width,
+                    height: value.size.height,
+                    child: kIsWeb
+                        ? HtmlElementView(viewType: value.webId!)
+                        : Texture(textureId: value.textureId!),
+                  ),
+                ),
               ),
-            ),
+              Center(
+                child: Container(
+                  decoration: ShapeDecoration(shape: QrScannerOverlayShape()),
+                ),
+              )
+            ],
           );
         }
       },

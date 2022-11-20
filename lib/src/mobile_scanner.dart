@@ -100,40 +100,40 @@ class _MobileScannerState extends State<MobileScanner>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      color: Colors.amber,
-    );
-    // return ValueListenableBuilder(
-    //   valueListenable: controller.startArguments,
-    //   builder: (context, value, child) {
-    //     value = value as MobileScannerArguments?;
-    //     if (value == null) {
-    //       return const ColoredBox(color: Colors.black);
-    //     } else {
-    //       controller.barcodes.listen((barcode) {
-    //         widget.onDetect(barcode);
-    //       });
-    //       return ClipRect(
-    //         child: SizedBox(
-    //           width: MediaQuery.of(context).size.width,
-    //           height: MediaQuery.of(context).size.height,
-    //           child: FittedBox(
-    //             fit: widget.fit,
-    //             child: SizedBox(
-    //               width: value.size.width,
-    //               height: value.size.height,
-    //               child: kIsWeb
-    //                   ? HtmlElementView(viewType: value.webId!)
-    //                   : Texture(textureId: value.textureId!),
-    //             ),
-    //           ),
-    //         ),
-    //       );
-    //     }
-    //   },
+    // return Container(
+    //   width: MediaQuery.of(context).size.width,
+    //   height: MediaQuery.of(context).size.height,
+    //   color: Colors.amber,
     // );
+    return ValueListenableBuilder(
+      valueListenable: controller.startArguments,
+      builder: (context, value, child) {
+        value = value as MobileScannerArguments?;
+        if (value == null) {
+          return const ColoredBox(color: Colors.black);
+        } else {
+          controller.barcodes.listen((barcode) {
+            widget.onDetect(barcode);
+          });
+          return ClipRect(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: FittedBox(
+                fit: widget.fit,
+                child: SizedBox(
+                  width: value.size.width,
+                  height: value.size.height,
+                  child: kIsWeb
+                      ? HtmlElementView(viewType: value.webId!)
+                      : Texture(textureId: value.textureId!),
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

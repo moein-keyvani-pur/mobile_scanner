@@ -104,7 +104,7 @@ class _MobileScannerState extends State<MobileScanner>
                                 decoration: ShapeDecoration(
                                     shape: QrScannerOverlayShape()),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(98.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   child: Texture(textureId: value.textureId!),
                                 ),
                               ),

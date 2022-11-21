@@ -99,18 +99,24 @@ class _MobileScannerState extends State<MobileScanner>
                       height: MediaQuery.of(context).size.height,
                       child: kIsWeb
                           ? HtmlElementView(viewType: value.webId!)
-                          : Padding(
-                              padding: const EdgeInsets.all(98.0),
-                              child: Texture(textureId: value.textureId!),
+                          : Center(
+                              child: Container(
+                                decoration: ShapeDecoration(
+                                    shape: QrScannerOverlayShape()),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(98.0),
+                                  child: Texture(textureId: value.textureId!),
+                                ),
+                              ),
                             ),
                     ),
                   ),
-                  Center(
-                    child: Container(
-                      decoration:
-                          ShapeDecoration(shape: QrScannerOverlayShape()),
-                    ),
-                  )
+                  // Center(
+                  //   child: Container(
+                  //     decoration:
+                  //         ShapeDecoration(shape: QrScannerOverlayShape()),
+                  //   ),
+                  // )
                 ],
               );
             }

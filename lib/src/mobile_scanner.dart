@@ -94,16 +94,13 @@ class _MobileScannerState extends State<MobileScanner>
               return Stack(
                 children: [
                   ClipRect(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                          vertical: sizeScreen.height * 0.3,
-                          horizontal: sizeScreen.width * 0.25),
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: kIsWeb
-                          ? HtmlElementView(viewType: value.webId!)
-                          : Texture(textureId: value.textureId!),
-                    ),
+                    child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: kIsWeb
+                            ? HtmlElementView(viewType: value.webId!)
+                            // : Texture(textureId: value.textureId!),
+                            : const Text('center this text')),
                   ),
                   Center(
                     child: Container(

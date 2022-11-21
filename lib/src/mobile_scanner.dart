@@ -71,6 +71,7 @@ class _MobileScannerState extends State<MobileScanner>
 
   @override
   Widget build(BuildContext context) {
+    final Size sizeScreen = MediaQuery.of(context).size;
     return LayoutBuilder(
       builder: (context, BoxConstraints constraints) {
         return ValueListenableBuilder(
@@ -93,16 +94,15 @@ class _MobileScannerState extends State<MobileScanner>
               return Stack(
                 children: [
                   ClipRect(
-                    child: SizedBox(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          vertical: sizeScreen.height * 0.3,
+                          horizontal: sizeScreen.width * 0.25),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: kIsWeb
-                            ? HtmlElementView(viewType: value.webId!)
-                            : Texture(textureId: value.textureId!),
-                      ),
+                      child: kIsWeb
+                          ? HtmlElementView(viewType: value.webId!)
+                          : Texture(textureId: value.textureId!),
                     ),
                   ),
                   Center(

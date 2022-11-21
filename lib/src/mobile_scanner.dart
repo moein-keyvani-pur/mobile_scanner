@@ -97,8 +97,8 @@ class _MobileScannerState extends State<MobileScanner>
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
                       child: SizedBox(
-                        width: value.size.width,
-                        height: value.size.height,
+                        width: value.size.width * 0.5,
+                        height: value.size.height * 0.5,
                         child: kIsWeb
                             ? HtmlElementView(viewType: value.webId!)
                             : Texture(textureId: value.textureId!),

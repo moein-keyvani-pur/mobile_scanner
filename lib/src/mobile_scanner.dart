@@ -1,54 +1,42 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/src/mobile_scanner_controller.dart';
-import 'package:mobile_scanner/src/objects/barcode_capture.dart';
-import 'package:mobile_scanner/src/objects/mobile_scanner_arguments.dart';
-import 'package:mobile_scanner/src/qr_scanner_overlay_shape.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
-typedef MobileScannerCallback = void Function(BarcodeCapture barcodes);
-typedef MobileScannerArgumentsCallback = void Function(
-  MobileScannerArguments? arguments,
-);
+import 'qr_scanner_overlay_shape.dart';
+
+enum Ratio { ratio_4_3, ratio_16_9 }
 
 /// A widget showing a live camera preview.
 class MobileScanner extends StatefulWidget {
   /// The controller of the camera.
   final MobileScannerController? controller;
 
-  /// Calls the provided [onPermissionSet] callback when the permission is set.
-  // @Deprecated('Use the [onPermissionSet] paremeter in the [MobileScannerController] instead.')
-  // ignore: deprecated_consistency
-  final Function(bool permissionGranted)? onPermissionSet;
-
   /// Function that gets called when a Barcode is detected.
   ///
   /// [barcode] The barcode object with all information about the scanned code.
-  /// [startInternalArguments] Information about the state of the MobileScanner widget
-  final MobileScannerCallback onDetect;
+  /// [args] Information about the state of the MobileScanner widget
+  final Function(Barcode barcode, MobileScannerArguments? args) onDetect;
 
-  /// Function that gets called when the scanner is started.
+  /// TODO: Function that gets called when the Widget is initialized. Can be usefull
+  /// to check wether the device has a torch(flash) or not.
   ///
-  /// [arguments] The start arguments of the scanner. This contains the size of
-  /// the scanner which can be used to draw a box over the scanner.
-  final MobileScannerArgumentsCallback? onStart;
+  /// [args] Information about the state of the MobileScanner widget
+  // final Function(MobileScannerArguments args)? onInitialize;
 
   /// Handles how the widget should fit the screen.
   final BoxFit fit;
 
-  /// Whether to automatically resume the camera when the application is resumed
-  final bool autoResume;
+  /// Set to false if you don't want duplicate scans.
+  final bool allowDuplicates;
 
   /// Create a [MobileScanner] with a [controller], the [controller] must has been initialized.
   const MobileScanner({
-    super.key,
+    Key? key,
     required this.onDetect,
-    this.onStart,
     this.controller,
-    this.autoResume = true,
     this.fit = BoxFit.cover,
-    @Deprecated('Use the [onPermissionSet] paremeter in the [MobileScannerController] instead.')
-        this.onPermissionSet,
-  });
+    this.allowDuplicates = false,
+  }) : super(key: key);
 
   @override
   State<MobileScanner> createState() => _MobileScannerState();
@@ -61,84 +49,73 @@ class _MobileScannerState extends State<MobileScanner>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    controller = widget.controller ??
-        MobileScannerController(onPermissionSet: widget.onPermissionSet);
-    if (!controller.isStarting) {
-      _startScanner();
-    }
+    WidgetsBinding.instance?.addObserver(this);
+    controller = widget.controller ?? MobileScannerController();
   }
-
-  Future<void> _startScanner() async {
-    final arguments = await controller.start();
-    widget.onStart?.call(arguments);
-  }
-
-  bool resumeFromBackground = false;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // App state changed before it is initialized.
-    if (controller.isStarting) {
-      return;
-    }
-
     switch (state) {
       case AppLifecycleState.resumed:
-        resumeFromBackground = false;
-        _startScanner();
-        break;
-      case AppLifecycleState.paused:
-        resumeFromBackground = true;
+        if (!controller.isStarting) controller.start();
         break;
       case AppLifecycleState.inactive:
-        if (!resumeFromBackground) controller.stop();
-        break;
-      default:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        controller.stop();
         break;
     }
   }
 
+  String? lastScanned;
+
   @override
   Widget build(BuildContext context) {
-    // return Container(
-    //   width: MediaQuery.of(context).size.width,
-    //   height: MediaQuery.of(context).size.height,
-    //   color: Colors.amber,
-    // );
-    return ValueListenableBuilder(
-      valueListenable: controller.startArguments,
-      builder: (context, value, child) {
-        value = value as MobileScannerArguments?;
-        if (value == null) {
-          return const ColoredBox(color: Colors.black);
-        } else {
-          controller.barcodes.listen((barcode) {
-            widget.onDetect(barcode);
-          });
-          return Stack(
-            children: [
-              ClipRect(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: SizedBox(
-                    width: value.size.width,
-                    height: value.size.height,
-                    child: kIsWeb
-                        ? HtmlElementView(viewType: value.webId!)
-                        : Texture(textureId: value.textureId!),
+    return LayoutBuilder(
+      builder: (context, BoxConstraints constraints) {
+        return ValueListenableBuilder(
+          valueListenable: controller.args,
+          builder: (context, value, child) {
+            value = value as MobileScannerArguments?;
+            if (value == null) {
+              return Container(color: Colors.black);
+            } else {
+              controller.barcodes.listen((barcode) {
+                if (!widget.allowDuplicates) {
+                  if (lastScanned != barcode.rawValue) {
+                    lastScanned = barcode.rawValue;
+                    widget.onDetect(barcode, value! as MobileScannerArguments);
+                  }
+                } else {
+                  widget.onDetect(barcode, value! as MobileScannerArguments);
+                }
+              });
+              return Stack(
+                children: [
+                  ClipRect(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: SizedBox(
+                        width: value.size.width,
+                        height: value.size.height,
+                        child: kIsWeb
+                            ? HtmlElementView(viewType: value.webId!)
+                            : Texture(textureId: value.textureId!),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Center(
-                child: Container(
-                  decoration: ShapeDecoration(shape: QrScannerOverlayShape()),
-                ),
-              )
-            ],
-          );
-        }
+                  Center(
+                    child: Container(
+                      decoration:
+                          ShapeDecoration(shape: QrScannerOverlayShape()),
+                    ),
+                  )
+                ],
+              );
+            }
+          },
+        );
       },
     );
   }
@@ -153,8 +130,7 @@ class _MobileScannerState extends State<MobileScanner>
       }
     } else {
       if (widget.controller == null) {
-        controller =
-            MobileScannerController(onPermissionSet: widget.onPermissionSet);
+        controller = MobileScannerController();
       } else if (oldWidget.controller != widget.controller) {
         controller = widget.controller!;
       }
@@ -164,7 +140,7 @@ class _MobileScannerState extends State<MobileScanner>
   @override
   void dispose() {
     controller.dispose();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 }

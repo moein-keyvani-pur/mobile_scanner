@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:mobile_scanner/src/enums/camera_facing.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobile_scanner/src/web/jsqr.dart';
 import 'package:mobile_scanner/src/web/media.dart';
 
@@ -24,6 +24,7 @@ class MobileScannerWebPlugin {
       registrar,
     );
     final MobileScannerWebPlugin instance = MobileScannerWebPlugin();
+    WidgetsFlutterBinding.ensureInitialized();
 
     channel.setMethodCallHandler(instance.handleMethodCall);
     event.setController(instance.controller);
@@ -199,11 +200,7 @@ class MobileScannerWebPlugin {
 
     final code = jsQR(imgData.data, canvas.width, canvas.height);
     if (code != null) {
-      controller.add({
-        'name': 'barcodeWeb',
-        'data': code.data,
-        'binaryData': code.binaryData,
-      });
+      controller.add({'name': 'barcodeWeb', 'data': code.data});
     }
   }
 }

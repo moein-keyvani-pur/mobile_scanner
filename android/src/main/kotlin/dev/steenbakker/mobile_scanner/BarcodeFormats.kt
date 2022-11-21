@@ -1,4 +1,6 @@
-package dev.steenbakker.mobile_scanner.objects
+package dev.steenbakker.mobile_scanner
+
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 
 enum class BarcodeFormats(val intValue: Int) {
     UNKNOWN(com.google.mlkit.vision.barcode.common.Barcode.FORMAT_UNKNOWN),

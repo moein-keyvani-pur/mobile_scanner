@@ -21,7 +21,7 @@ extension CVBuffer {
     var image: UIImage {
         let ciImage = CIImage(cvPixelBuffer: self)
         let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent)
-        return UIImage(cgImage: cgImage!, scale: 1.0, orientation: UIImage.Orientation.left)
+        return UIImage(cgImage: cgImage!)
     }
     
     var image1: UIImage {
@@ -70,7 +70,7 @@ extension UIDeviceOrientation {
 extension Barcode {
     var data: [String: Any?] {
         let corners = cornerPoints?.map({$0.cgPointValue.data})
-        return ["corners": corners, "format": format.rawValue, "rawBytes": rawData, "rawValue": rawValue, "type": valueType.rawValue, "calendarEvent": calendarEvent?.data, "contactInfo": contactInfo?.data, "driverLicense": driverLicense?.data, "email": email?.data, "geoPoint": geoPoint?.data, "phone": phone?.data, "sms": sms?.data, "url": url?.data, "wifi": wifi?.data, "displayValue": displayValue]
+        return ["corners": corners, "format": format.rawValue, "rawBytes": rawData, "rawValue": rawValue, "type": valueType.rawValue, "calendarEvent": calendarEvent?.data, "contactInfo": contactInfo?.data, "driverLicense": driverLicense?.data, "email": email?.data, "geoPoint": geoPoint?.data, "phone": phone?.data, "sms": sms?.data, "url": url?.data, "wifi": wifi?.data]
     }
 }
 

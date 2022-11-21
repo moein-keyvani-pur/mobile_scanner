@@ -13,18 +13,12 @@ class BarcodeScannerWithController extends StatefulWidget {
 class _BarcodeScannerWithControllerState
     extends State<BarcodeScannerWithController>
     with SingleTickerProviderStateMixin {
-  BarcodeCapture? barcode;
+  String? barcode;
 
   MobileScannerController controller = MobileScannerController(
     torchEnabled: true,
     // formats: [BarcodeFormat.qrCode]
     // facing: CameraFacing.front,
-    onPermissionSet: (hasPermission) {
-      // Do something with permission callback
-    },
-    // detectionSpeed: DetectionSpeed.normal
-    // detectionTimeoutMs: 1000,
-    // returnImage: false,
   );
 
   bool isStarted = true;
@@ -40,13 +34,14 @@ class _BarcodeScannerWithControllerState
               MobileScanner(
                 controller: controller,
                 fit: BoxFit.contain,
+                // allowDuplicates: true,
                 // controller: MobileScannerController(
                 //   torchEnabled: true,
                 //   facing: CameraFacing.front,
                 // ),
-                onDetect: (barcode) {
+                onDetect: (barcode, args) {
                   setState(() {
-                    this.barcode = barcode;
+                    this.barcode = barcode.rawValue;
                   });
                 },
               ),
@@ -104,8 +99,7 @@ class _BarcodeScannerWithControllerState
                           height: 50,
                           child: FittedBox(
                             child: Text(
-                              barcode?.barcodes.first.rawValue ??
-                                  'Scan something!',
+                              barcode ?? 'Scan something!',
                               overflow: TextOverflow.fade,
                               style: Theme.of(context)
                                   .textTheme
@@ -139,9 +133,9 @@ class _BarcodeScannerWithControllerState
                         icon: const Icon(Icons.image),
                         iconSize: 32.0,
                         onPressed: () async {
-                          final ImagePicker picker = ImagePicker();
+                          final ImagePicker _picker = ImagePicker();
                           // Pick an image
-                          final XFile? image = await picker.pickImage(
+                          final XFile? image = await _picker.pickImage(
                             source: ImageSource.gallery,
                           );
                           if (image != null) {

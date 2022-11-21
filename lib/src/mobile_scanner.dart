@@ -99,7 +99,10 @@ class _MobileScannerState extends State<MobileScanner>
                       height: MediaQuery.of(context).size.height,
                       child: kIsWeb
                           ? HtmlElementView(viewType: value.webId!)
-                          : Texture(textureId: value.textureId!),
+                          : Padding(
+                              padding: const EdgeInsets.all(98.0),
+                              child: Texture(textureId: value.textureId!),
+                            ),
                     ),
                   ),
                   Center(
